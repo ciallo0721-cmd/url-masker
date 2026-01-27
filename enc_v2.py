@@ -156,7 +156,7 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog='''
 使用示例:
-  加密: python enc_v2.py ciallo0721-cmd.github.io/blog
+  加密: python enc_v2.py "https://example.com/some/path"
   解密: python enc_v2.py -d "加密字符串.moyu0721cmd" -k "你的密钥"
         '''
     )
@@ -257,6 +257,7 @@ def main():
                     
                     encrypted, key = encryptor.encrypt_with_key(user_input, password)
                     print(f"加密结果: {encrypted}")
+                    print(f"请妥善保存以下密钥以便解密:{key}")
                     print(f"加密密钥: {key}")
                     print(f"提示: 使用 'd {encrypted}' 解密")
                     
