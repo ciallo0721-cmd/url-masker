@@ -156,8 +156,8 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog='''
 使用示例:
-  加密: python enc_v2.py "https://example.com/some/path"
-  解密: python enc_v2.py -d "加密字符串.moyu0721cmd" -k "你的密钥"
+  加密: enc_v2.exe "https://example.com/some/path"
+  解密: enc_v2.exe -d "加密字符串.moyu0721cmd" -k "你的密钥"
         '''
     )
     
@@ -210,10 +210,10 @@ def main():
             # 显示解密提示
             if args.password:
                 print(f"\n解密命令:")
-                print(f'  python enc_v2.py -d "{encrypted}" -k "{args.password}"')
+                print(f'  enc_v2.exe -d "{encrypted}" -k "{args.password}"')
             else:
                 print(f"\n解密命令:")
-                print(f'  python enc_v2.py -d "{encrypted}" -k "{key}"')
+                print(f'  enc_v2.exe -d "{encrypted}" -k "{key}"')
             
         except Exception as e:
             print(f"处理过程中出现错误: {e}")
