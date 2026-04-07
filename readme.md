@@ -1,82 +1,124 @@
-# Key-Based URL Encryptor
+
+# URL Masker Pro - 独立密钥域名加密生成器
 
 ## 概述
-`enc_v2.py` 是一个基于密钥的 URL 加密和解密工具，旨在提供安全的 URL 加密功能。它支持用户自定义密码或随机生成密钥，并通过 AES 加密算法确保数据的安全性。
+`enc_v2.py` 是一个基于密钥的 URL 加密/解密工具，支持多级安全模式和独立密钥。你可以使用自定义密码，也可以让工具生成随机密钥。加密结果以不同的后缀标识安全强度，解密时工具会自动识别后缀。
 
-## 功能
-- **加密 URL**：
-  - 支持用户自定义密码。
-  - 自动生成随机密钥（如果未提供密码）。
-  - 生成加密后的字符串，附带自定义后缀。
-- **解密 URL**：
-  - 验证加密数据的完整性。
-  - 解密并还原原始 URL。
-- **HMAC 校验**：
-  - 确保数据未被篡改。
+**祈福**：愿使用此工具的人都能平平安安，网络安全无忧。  
+愿所有雏草姬都能保护好自己的隐私数据。  
+愿塔菲的魔法守护每一个加密链接~
 
-## 使用方法
+## 安全级别（后缀）
+| 后缀 | 迭代次数 | 安全描述 |
+|------|----------|----------|
+| `.moyu` | 10,000 | 低安全性 - 适合临时使用 |
+| `.ciallo0721cmd` | 50,000 | 中等安全性 - 日常使用 |
+| `.moyu0721cmd` | 100,000 | 较高安全性 - **默认** |
+| `.guange` | 500,000 | 最高安全性 - 敏感数据 |
 
-### 加密
-运行以下命令加密 URL：
-```bash
-python enc_v2.py <URL>
-```
-示例：
-```bash
-python enc_v2.py ciallo0721-cmd.github.io/blog
-```
-
-输出：
-- 加密后的字符串
-- 加密密钥（用于解密）
-
-### 解密
-运行以下命令解密加密字符串：
-```bash
-python enc_v2.py -d <加密字符串> -k <密钥>
-```
-示例：
-```bash
-python enc_v2.py -d "加密字符串.moyu0721cmd" -k "你的密钥"
-```
+## 功能特性
+- **AES-256-CBC 加密** + PBKDF2 密钥派生
+- **HMAC-SHA256** 完整性校验（防止篡改）
+- 支持**自定义密码**或**随机生成密钥**
+- 自动检测加密字符串的后缀（解密时无需指定安全级别）
+- 命令行交互模式（无参数运行）
+- 时间戳嵌入，可追溯加密时间
 
 ## 依赖
 - Python 3.6+
-- `pycryptodome` 库
+- `pycryptodome`
 
 安装依赖：
 ```bash
 pip install pycryptodome
 ```
 
+## 使用方法
+
+### 1. 加密 URL
+```bash
+python enc_v2.py <URL>
+```
+默认使用 `.moyu0721cmd`（较高安全性）。
+
+#### 可选参数
+- `-s` / `--suffix`：指定安全级别（moyu / ciallo0721cmd / moyu0721cmd / guange）
+- `-p` / `--password`：使用自定义密码（不提供则自动生成随机密钥）
+
+**示例**：
+```bash
+# 基本加密（自动生成密钥）
+python enc_v2.py "https://ciallo0721-cmd.github.io/blog"
+
+# 使用最高安全级别和自定义密码
+python enc_v2.py "https://example.com/secret" -s guange -p "myStrongP@ssw0rd"
+
+# 指定中等安全级别
+python enc_v2.py "https://example.com" -s ciallo0721cmd
+```
+
+**输出示例**：
+```
+原始URL: https://ciallo0721-cmd.github.io/blog
+加密结果: v2|...|.moyu0721cmd
+加密密钥: c4kj6w4uye0yf0CI3Zr0tA
+安全级别: 较高安全性 - 推荐
+⚠️ 重要: 请妥善保存此密钥，解密时需要它!
+```
+
+### 2. 解密加密字符串
+```bash
+python enc_v2.py -d <加密字符串> -k <密钥>
+```
+工具会自动识别加密字符串的后缀（无需手动指定 `-s`）。
+
+**示例**：
+```bash
+python enc_v2.py -d "djJ8...moyu0721cmd" -k "c4kj6w4uye0yf0CI3Zr0tA"
+```
+
+**输出**：
+```
+✅ 解密成功!
+🔗 原始URL: https://ciallo0721-cmd.github.io/blog
+```
+
+### 3. 交互模式
+直接运行 `python enc_v2.py`（不带任何参数）进入交互模式，可以：
+- 输入 URL 进行加密（会询问安全级别和是否自定义密码）
+- 输入 `decrypt <加密字符串>` 进行解密（然后输入密钥）
+- 输入 `q` 退出
+
 ## 文件结构
-- `KeyBasedEncryptor` 类：
-  - 核心加密和解密逻辑。
-- `main` 函数：
-  - 提供命令行接口。
+- `KeyBasedEncryptor` 类：核心加密/解密逻辑
+  - `_derive_key_from_password()`：PBKDF2 密钥派生
+  - `encrypt_with_key()`：加密并返回 (加密串, 密钥)
+  - `decrypt_with_key()`：解密并返回原始 URL
+- `main()`：命令行与交互界面
 
 ## 注意事项
-- 请妥善保存加密密钥，解密时需要它。
-- 如果加密字符串被篡改，解密可能会失败。
+1. **密钥务必妥善保存**，丢失将无法解密。
+2. 加密字符串被篡改会导致 HMAC 校验失败，解密时会发出警告。
+3. URL 应包含协议（`http://` 或 `https://`）或至少包含点号，否则会提示格式无效。
+4. 不同安全级别仅影响 PBKDF2 迭代次数，不影响算法强度，但迭代次数越高，加解密越慢（也更安全）。
 
-## 示例
-### 加密
-```bash
-python enc_v2.py ciallo0721-cmd.github.io/blog
-```
-输出：
-```
-原始URL: ciallo0721-cmd.github.io/blog
-加密结果: v2|...|.moyu0721cmd
-加密密钥: your-generated-key
-```
+## 常见问题
 
-### 解密
-```bash
-python enc_v2.py -d "v2|...|.moyu0721cmd" -k "your-generated-key"
-```
-输出：
-```
-解密成功:
-原始URL: ciallo0721-cmd.github.io/blog
-```
+**Q：为什么我的加密结果以 `.moyu0721cmd` 结尾？**  
+A：这是默认后缀，表示使用 100,000 次 PBKDF2 迭代。你可以通过 `-s` 参数更改。
+
+**Q：解密时提示“密钥不正确”怎么办？**  
+A：检查密钥是否完整复制（注意大小写和特殊字符）。如果密钥正确但仍然失败，可能数据已损坏。
+
+**Q：能否在不安装 Python 的情况下使用？**  
+A：你可以将脚本打包成独立 exe（例如使用 PyInstaller），或使用已编译的发行版（如有）。
+
+## 更新日志
+- v2.0 增加多级安全后缀、HMAC 完整性校验、交互模式
+- 支持自定义密码与自动密钥生成
+- 优化错误提示，更友好的用户交互
+
+---
+
+**关注塔菲喵！关注塔菲谢谢喵！**  
+**塔不灭！雏草姬不灭！**
